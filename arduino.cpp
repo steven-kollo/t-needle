@@ -9,6 +9,8 @@ char cString[40];
 byte chPos = 0;
 byte ch = 0;
 char dataStr[6];
+float initial_velocity = 0.0;
+float initial_position = 0.0;
 
 int defineInstructionPosition(char tag)
 {
@@ -85,7 +87,46 @@ void writeSensorValues()
     compass.read();
     String sensorValues = "h" + String(int(compass.heading())) + " ax" + String(compass.a.x) + " ay" + String(compass.a.y) + " az" + String(compass.a.z) + " mx" + String(compass.m.x) + " my" + String(compass.m.y) + " mz" + String(compass.m.z);
     Serial.println("Sensors: " + sensorValues);
+    // Serial.println(compass.heading());
+    // float gTotal = sqrt(compass.a.x  * compass.a.x + compass.a.y * compass.a.y + compass.a.z * compass.a.z);
+    // Serial.println(gTotal);
+
+    // Serial.println(compass.a.x / 16384.0 * compass.a.x / 16384.0 + compass.a.y / 16384.0 * compass.a.y / 16384.0);
     link.println(sensorValues);
+    // float absX = calculateX(0.1, compass.a.x);
+    // Serial.println(absX);
+}
+
+float calculateX(float time_interval, float accX)
+{
+    // Главный цикл
+    float acceleration_x = accX / 16384.0; // Convert into g
+
+    // Интеграция ускорения для получения скорости
+    initial_velocity = integrate_acceleration(acceleration_x, time_interval);
+
+    // Интеграция скорости для получения позиции
+    initial_position = integrate_velocity(initial_velocity, time_interval);
+
+    Serial.println(accX);
+    // Serial.println(initial_velocity);
+    // Serial.println(initial_position);
+    //  delay(time_interval * 1000);
+}
+
+// Интеграция ускорения
+float integrate_acceleration(float acceleration, float time_interval)
+{
+    float velocity = initial_velocity + acceleration * time_interval;
+    // Serial.println(velocity);
+    return velocity;
+}
+
+// Интеграция скорости
+float integrate_velocity(float velocity, float time_interval)
+{
+    float position = initial_position + velocity * time_interval;
+    return position;
 }
 
 void setup()
