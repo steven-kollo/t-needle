@@ -1,3 +1,32 @@
+test_mode = True
+
+stages = [
+    {
+        "time": 15,
+        "yaw": 0
+    },
+    {
+        "time": 15,
+        "yaw": 180
+    },
+    {
+        "time": 15,
+        "yaw": 90
+    },
+    {
+        "time": 15,
+        "yaw": 270
+    }
+]
+
+instructions = {
+    "yaw": 0
+}
+
+correction_multipliers = {
+    "yaw": lambda degree: 1550 + round(degree / 2) if degree > 0 else 1450 + round(degree / 2)
+}
+
 sensors = {
     "he": 0,
     "ax": 0,
@@ -10,21 +39,21 @@ sensors = {
     "rl": 0
 }
 
-system_check_on_launch = {
+collection = {
+    "he": [],
+    "ax": [],
+    "ay": [],
+    "az": [],
+    "mx": [],
+    "my": [],
+    "mz": [],
+    "pt": [],
+    "rl": []
+}
+health_check_on_launch = {
     "num_of_tries": 10,
     "num_of_sensor_cycles": 30,
     "sensor_cycle_time_sleep": 0.05,
     "pitch_roll_error_degrees": 3,
-    "sensor_error_percents": 0.05,
-    "collection": {
-        "he": [],
-        "ax": [],
-        "ay": [],
-        "az": [],
-        "mx": [],
-        "my": [],
-        "mz": [],
-        "pt": [],
-        "rl": []
-    }
+    "sensor_error_percents": 0.05
 }
