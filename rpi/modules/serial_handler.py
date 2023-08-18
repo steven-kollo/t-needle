@@ -24,14 +24,17 @@ class SerialHandler():
 
                 # WARNING! BRUTAL HARDCODE, FOR TESTS ONLY
                 def write(self, line):
-                    yaw = round((int(line) - 1500) / 20)
+                    yaw = 1500
+                    for sensor in line.decode().split(" "):
+                        if (sensor[:1] == "y"):
+                            yaw = round((int(sensor[1:]) - 1500) / 20)
                     self.he += yaw
                     if self.he > 360:
                         self.he = self.he - 360
                     if self.he < 0:
                         self.he = self.he + 360
                     print(f"Compass degrees: {self.he}")
-                    print(f"Instructions sent: 'yaw: {line}'")
+                    print(f"Instructions sent: '{line.decode()}'")
 
             self.Serial = Serial()
 

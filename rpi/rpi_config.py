@@ -3,30 +3,44 @@ test_mode = True
 stages = [
     {
         "time": 15,
-        "yaw": 0
+        "yw": 0
     },
     {
         "time": 15,
-        "yaw": 180
+        "yw": 180
     },
     {
         "time": 15,
-        "yaw": 90
+        "yw": 90
     },
     {
         "time": 15,
-        "yaw": 270
+        "yw": 270
     }
 ]
 
 instructions = {
-    "yaw": 0
+    "th": 1000,
+    "rl": 1500,
+    "pt": 1500,
+    "yw": 1500,
+    "fm": 0
 }
+
+instructions_serial_chars = {
+    "th": "t",
+    "rl": "r",
+    "pt": "p",
+    "yw": "y",
+    "fm": "f"
+}
+
+instructions_line = "t1000 r1500 p1500 y1500 f0"
 
 sensor_primitive_values = ["ax", "ay", "az", "mx", "my", "mz"]
 
 correction_multipliers = {
-    "yaw": lambda degree: 1550 + round(degree / 2) if degree > 0 else 1450 + round(degree / 2)
+    "yw": lambda degree: 1550 + round(degree / 2) if degree > 0 else 1450 + round(degree / 2)
 }
 
 sensors = {
@@ -48,18 +62,6 @@ health = {
     "sensor_cycle_time_sleep": 0.05,
     "pitch_roll_error_degrees": 3,
     "sensor_error_percents": 0.05
-}
-
-collection = {
-    "he": [],
-    "ax": [],
-    "ay": [],
-    "az": [],
-    "mx": [],
-    "my": [],
-    "mz": [],
-    "pt": [],
-    "rl": []
 }
 
 health_check_on_launch = {

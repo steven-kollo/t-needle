@@ -85,7 +85,7 @@ void processInstructions()
 void writeSensorValues()
 {
     compass.read();
-    String sensorValues = "h" + String(int(compass.heading())) + " ax" + String(compass.a.x) + " ay" + String(compass.a.y) + " az" + String(compass.a.z) + " mx" + String(compass.m.x) + " my" + String(compass.m.y) + " mz" + String(compass.m.z);
+    String sensorValues = "he" + String(int(compass.heading())) + " ax" + String(compass.a.x) + " ay" + String(compass.a.y) + " az" + String(compass.a.z) + " mx" + String(compass.m.x) + " my" + String(compass.m.y) + " mz" + String(compass.m.z);
     Serial.println("Sensors: " + sensorValues);
     // Serial.println(compass.heading());
     // float gTotal = sqrt(compass.a.x  * compass.a.x + compass.a.y * compass.a.y + compass.a.z * compass.a.z);

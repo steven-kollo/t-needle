@@ -5,8 +5,9 @@ class InstructionsHandler:
     stages = rpi_config.stages
     stage = stages[0]
     instructions = rpi_config.instructions
-    collection = rpi_config.collection
+    instructions_serial_chars = rpi_config.instructions_serial_chars
     correction_multipliers = rpi_config.correction_multipliers
+    instructions_line = rpi_config.instructions_line
 
     def next_stage(self):
         self.clock = self.clock + self.stage["time"]
@@ -36,9 +37,26 @@ class InstructionsHandler:
             return 1500
         return self.correction_multipliers[sensor](correction)
 
-    def update_instructions(self, sensors):
+    def build_instructions_line(self):
+        line = ""
+        for instruction in self.instructions:
+            serial_char = self.instructions_serial_chars[instruction]
+            line = line + serial_char + \
+                str(self.instructions[instruction]) + " "
+        self.instructions_line = line[:-1]
+
+    def calculate_yaw_correction(self, he):
         yaw_correction = self.get_correction_degrees(
-            current=int(sensors["he"]), target=(self.stage["yaw"]))
-        self.instructions["yaw"] = self.calculate_instruction_from_correction_degrees(
-            correction=yaw_correction, sensor="yaw")
-        self.collection = self.rpi_config.collection
+            current=int(he), target=(self.stage["yw"]))
+        self.instructions["yw"] = self.calculate_instruction_from_correction_degrees(
+            correction=yaw_correction, sensor="yw")
+
+    def update_instructions(self, sensors):
+        time_diff = - (self.clock - self.time.time())
+        if (time_diff > self.stage["time"]):
+            self.next_stage()
+
+        # TODO Add other dimentions correction
+        self.calculate_yaw_correction(sensors["he"])
+
+        self.build_instructions_line()

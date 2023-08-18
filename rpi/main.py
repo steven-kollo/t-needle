@@ -33,13 +33,7 @@ def read():
 
 def process():
     while InstructionsHandler.stage != False:
-        # TODO time_diff into InstructionsHandler class
-        time_diff = - (InstructionsHandler.clock - time.time())
-        InstructionsHandler.update_instructions(
-            sensors=SensorsHandler.sensors)
-
-        if (time_diff > InstructionsHandler.stage["time"]):
-            InstructionsHandler.next_stage()
+        InstructionsHandler.update_instructions(sensors=SensorsHandler.sensors)
         time.sleep(0.05)
 
 
@@ -48,8 +42,7 @@ def write():
         pass
 
     while InstructionsHandler.stage != False:
-        # WARNING! BRUTAL HARDCODE, FOR TESTS ONLY
-        Serial.write(f"{InstructionsHandler.instructions['yaw']}".encode())
+        Serial.write(InstructionsHandler.instructions_line.encode())
         time.sleep(0.1)
 
 

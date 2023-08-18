@@ -6,6 +6,10 @@ class HealthHandler():
     horizontal_position_error = rpi_config.horizontal_position_error
     history = []
     log = {}
+    pt_rl_log = {
+        "pt": [],
+        "rl": []
+    }
     log_len = 0
 
     def __init__(self):
@@ -17,6 +21,8 @@ class HealthHandler():
         self.log_len = self.log_len + 1
         for sensor in self.log:
             self.log[sensor].append(sensors[sensor])
+        for sensor in self.pt_rl_log:
+            self.pt_rl_log[sensor].append(sensors[sensor])
 
     def get_sensor_mod_vs_peaks_error(self, sensor, mod_num):
         mod = self.log[sensor][mod_num]
@@ -24,22 +30,18 @@ class HealthHandler():
         lowest_error = -(self.log[sensor][1] / mod - 1)
         return abs((highest_error + lowest_error) / 2 * 100)
 
-    # def check_launch_position(self):
-    #     error = self.horizontal_position_error
-    #     pitch_avg = sum(self.log['pt']) / len(self.log['pt'])
-    #     roll_avg = sum(self.log['rl']) / len(self.log['rl'])
-    #     print(
-    #         f"------ Pitch: {round(pitch_avg)} Roll: {round(roll_avg)} ------\n")
-    #     if (pitch_avg < error and pitch_avg > -error and roll_avg < error and roll_avg > -error):
+    def check_launch_position(self):
+        error = self.horizontal_position_error
+        pitch_avg = sum(self.pt_rl_log['pt']) / len(self.pt_rl_log['pt'])
+        roll_avg = sum(self.pt_rl_log['rl']) / len(self.pt_rl_log['rl'])
+        if (pitch_avg < error and pitch_avg > -error and roll_avg < error and roll_avg > -error):
 
-    #         print("-------- Pitch Roll OK --------")
-    #         print(
-    #             f"------ Pitch: {round(pitch_avg)} Roll: {round(roll_avg)} ------\n")
-    #         return True
-    #     else:
-    #         print(
-    #             f"------ Pitch: {round(pitch_avg)} Roll: {round(roll_avg)} ------\n")
-    #         return False
+            print("-------- Pitch Roll OK --------")
+            print(
+                f"------ Pitch: {round(pitch_avg)} Roll: {round(roll_avg)} ------\n")
+            return True
+        else:
+            return False
 
     def check_health(self):
         avg_error = []
@@ -56,12 +58,11 @@ class HealthHandler():
             print("\n======= HEALTH CHECK OK =======\n")
             self.launch_health = True
 
-            # print(self.check_launch_position())
-            # if self.check_launch_position():
-            #     self.launch_health = True
-            # else:
-            #     print("======== LAUNCH FAILED ========")
-            #     self.history = []
+            if self.check_launch_position():
+                self.launch_health = True
+            else:
+                print("======== LAUNCH FAILED ========")
+                self.history = []
 
     def drop_health_log(self):
         for log in self.log:
