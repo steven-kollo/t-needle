@@ -3,7 +3,13 @@ test_mode = True
 stages = [
     {
         "time": 15,
-        "yw": 0
+        # height to add in meters, can be negative.
+        # TODO add hg to sensors, add sensor (physical)
+        "hg": 0.5
+    },
+    {
+        "time": 15,
+        "yw": 0  # yaw in degrees according to abs north, 0 to 360 degrees
     },
     {
         "time": 15,
@@ -16,7 +22,11 @@ stages = [
     {
         "time": 15,
         "yw": 270
-    }
+    },
+    {
+        "time": 15,
+        "hg": -0.5
+    },
 ]
 
 instructions = {

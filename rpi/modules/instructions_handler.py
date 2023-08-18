@@ -51,6 +51,9 @@ class InstructionsHandler:
         self.instructions["yw"] = self.calculate_instruction_from_correction_degrees(
             correction=yaw_correction, sensor="yw")
 
+    def calculate_throttle_correction(self):
+        pass
+
     def update_instructions(self, sensors):
         time_diff = - (self.clock - self.time.time())
         if (time_diff > self.stage["time"]):
@@ -58,5 +61,6 @@ class InstructionsHandler:
 
         # TODO Add other dimentions correction
         self.calculate_yaw_correction(sensors["he"])
+        self.calculate_throttle_correction()
 
         self.build_instructions_line()
