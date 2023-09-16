@@ -2,6 +2,13 @@
 
 import asyncio
 from mavsdk import System
+import modules.mission_handler as mission_handler
+import modules.sensors_handler as sensors_handler
+import modules.stage_handler as stage_handler
+
+MissionHandler = mission_handler.MissionHandler()
+SensorsHandler = sensors_handler.SensorsHandler()
+StageHandler = stage_handler.StageHandler()
 
 async def run():
     # Init the drone
@@ -15,11 +22,11 @@ async def run():
             break
 
     # Start parallel tasks
-    print_position_task = asyncio.ensure_future(print_position(drone))
-    print_flight_mode_task = asyncio.ensure_future(print_flight_mode(drone))
+    print_position_task = asyncio.ensure_future(SensorsHandler.update_position(drone=drone))
+    print_flight_mode_task = asyncio.ensure_future(SensorsHandler.update_flight_mode(drone=drone))
+    update_target_point_task = asyncio.ensure_future(StageHandler.update_target_point(SensorsHandler=SensorsHandler, MissionHandler=MissionHandler, drone=drone))
 
-
-    running_tasks = [print_position_task, print_flight_mode_task]
+    running_tasks = [print_position_task, print_flight_mode_task, update_target_point_task]
     termination_task = asyncio.ensure_future(
         observe_is_in_air(drone, running_tasks))
 
@@ -33,16 +40,27 @@ async def run():
     await drone.action.arm()
 
     print("-- Taking off")
-    await drone.action.set_takeoff_altitude(10.0)
+    await drone.action.set_takeoff_altitude(3.0)
     await drone.action.takeoff()
 
     await asyncio.sleep(10)
-
-    await drone.action.goto_location(28.4526, -13.86714, 500, 0)
+    altitude = 3.0
+    mission = MissionHandler.mission
+    await drone.action.goto_location(MissionHandler.target_point["lat"], MissionHandler.target_point["lon"], 495, 0)
+    # print(mission[1])
+    # await MissionHandler.go_to_point(drone=drone)
+    # await drone.action.goto_location(mission[1]["lat"], mission[1]["lon"], 495, 0)
+    await asyncio.sleep(10)
+    # await drone.action.goto_location(mission[2]["lat"], mission[2]["lon"], 495, 0)
+    # await asyncio.sleep(10)
+    # await drone.action.goto_location(mission[3]["lat"], mission[3]["lon"], 495, 0)
+    # await asyncio.sleep(10)
 
     while True:
+        #if (mission[counter]["lat"] + mission[counter]["lon"] == )
         # TODO Why coord reached
-        print("Staying connected, press Ctrl-C to exit")
+        #print("Staying connected, press Ctrl-C to exit")
+        # print(SensorsHandler.position)
         await asyncio.sleep(1)
 
     print("-- Landing")
@@ -50,40 +68,6 @@ async def run():
 
     # Wait until the drone is landed (instead of exiting after 'land' is sent)
     await termination_task
-
-
-async def print_position(drone):
-    """ Prints the coords when it changes """
-
-    previous_lat = 0
-    previous_lon = 0
-    previous_altitude = None
-
-    async for position in drone.telemetry.position():
-        lat = round(position.latitude_deg, 5)
-        lon = round(position.longitude_deg, 5)
-        altitude = round(position.relative_altitude_m)
-
-        if altitude != previous_altitude:
-            previous_altitude = altitude
-            print(f"Altitude: {altitude}")
-
-        if lon + lat != previous_lat + previous_lon:
-            previous_lat = lat
-            previous_lon = lon
-            print(f"Lat: {lat}, lon: {lon}")
-
-
-async def print_flight_mode(drone):
-    """ Prints the flight mode when it changes """
-
-    previous_flight_mode = None
-
-    async for flight_mode in drone.telemetry.flight_mode():
-        if flight_mode != previous_flight_mode:
-            previous_flight_mode = flight_mode
-            print(f"Flight mode: {flight_mode}")
-
 
 async def observe_is_in_air(drone, running_tasks):
     """ Monitors whether the drone is flying or not and
