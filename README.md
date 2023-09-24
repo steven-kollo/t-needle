@@ -1,8 +1,8 @@
 # t-needle
 
-## Setup Ubuntu 22.04
+## Setup Ubuntu 22.04 | px4 v1.14.0-rc1
 ```
-git clone https://github.com/PX4/PX4-Autopilot.git --recursive
+git clone --depth 1 --branch v1.14.0-rc1 https://github.com/PX4/PX4-Autopilot.git --recursive
 bash ./PX4-Autopilot/Tools/setup/ubuntu.sh
 ```
 reboot
@@ -15,7 +15,7 @@ git clone https://github.com/steven-kollo/t-needle
 ## Run simulation
 ```
 cd ~/PX4-Autopilot
-PX4_HOME_LAT=28.452386 PX4_HOME_LON=-13.867138 make px4_sitl_default gz_x500
+make px4_sitl_default gz_x500
 ```
 ## Run test T-Needle app
 ```
