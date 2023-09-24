@@ -40,13 +40,13 @@ async def run():
     await drone.action.arm()
 
     print("-- Taking off")
-    await drone.action.set_takeoff_altitude(3.0)
+    await drone.action.set_takeoff_altitude(10.0)
     await drone.action.takeoff()
 
     await asyncio.sleep(10)
     altitude = 3.0
     mission = MissionHandler.mission
-    await drone.action.goto_location(MissionHandler.target_point["lat"], MissionHandler.target_point["lon"], 495, 0)
+    await drone.action.goto_location(MissionHandler.target_point["lat"], MissionHandler.target_point["lon"], 500, 0)
     # print(mission[1])
     # await MissionHandler.go_to_point(drone=drone)
     # await drone.action.goto_location(mission[1]["lat"], mission[1]["lon"], 495, 0)

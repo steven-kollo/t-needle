@@ -14,7 +14,7 @@ class StageHandler:
                 if distance < 0.5:
                     print("point reached!")
                     MissionHandler.next_point()
-                    await drone.action.goto_location(MissionHandler.target_point["lat"], MissionHandler.target_point["lon"], 495, 0)
+                    await drone.action.goto_location(MissionHandler.target_point["lat"], MissionHandler.target_point["lon"], 500, 0)
             
             await asyncio.sleep(1)
 
