@@ -1,4 +1,4 @@
-class MissionHandler:
+class RouteHandler:
     import modules.mission_planner as mission_planner
     import json
     start_pos = {}

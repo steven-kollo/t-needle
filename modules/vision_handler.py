@@ -12,8 +12,7 @@ class VisionHandler:
     target_coords = (0,0)
     target_yaw_angle = 0.0
 
-    def __init__(self, StageHandler):
-        self.StageHandler = StageHandler
+    def __init__(self):
         config_file = open('config.json')
         config = json.load(open('config.json'))
         if (config["sim_mode"]): 
@@ -41,7 +40,7 @@ class VisionHandler:
                 self.target_coords = (center[0] - 200, 200 - center[1])
                 self.target_yaw_angle = round(math.atan2(self.target_coords[0], self.target_coords[1]) * 180 / math.pi, 2)
                 self.OffboardHandler.yaw_diff = self.target_yaw_angle
-                
+
             cv.imshow('test', image)
             if cv.waitKey(33) & 0xFF in (
                 ord('q'), 
