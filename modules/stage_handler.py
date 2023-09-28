@@ -1,7 +1,7 @@
 import asyncio
+import modules.helpers as helpers
 
 class StageHandler:
-    import modules.helpers as helpers
     route = True
 
     async def update_target_point(self, MissionHandler, SensorsHandler, drone):
@@ -9,7 +9,7 @@ class StageHandler:
             if self.route:
                 position = SensorsHandler.position
                 target = MissionHandler.target_point
-                distance = self.helpers.gps_to_meters(position["lat"], position["lon"], target["lat"], target["lon"])
+                distance = helpers.gps_to_meters(position["lat"], position["lon"], target["lat"], target["lon"])
                 print(distance)
                 if distance < 0.5:
                     print("point reached!")

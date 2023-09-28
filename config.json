@@ -1,4 +1,11 @@
 {
+    "sim_mode": 1,
+    "sim_camera_config": {
+        "target_img_path": "./gz_x500_sim/opencv_mss_screen/target.png" 
+    },
+    "camera_config": {
+        "target_img_path": "" 
+    },
     "mission": {
         "start_pos": {
             "lat": 47.3977426,
