@@ -4,27 +4,21 @@ import json
 import math
 
 class VisionHandler:
-    StageHandler = None
-    CameraHandler = None
-    OffboardHandler = None
     target = None
     target_captured = False
     target_coords = (0,0)
     target_yaw_angle = 0.0
 
-    def __init__(self):
-        config_file = open('config.json')
-        config = json.load(open('config.json'))
-        if (config["sim_mode"]): 
-            self.target = cv.imread(config["sim_camera_config"]["target_img_path"], cv.IMREAD_UNCHANGED)
+    # TODO make an option for physical camera
+    def __init__(self, Config):
+        if (Config["sim_mode"]): 
+            self.target = cv.imread(Config["sim_camera_config"]["target_img_path"], cv.IMREAD_UNCHANGED)
         else:
             pass
-        config_file.close()
 
-
-    async def process_image(self):
+    async def process_image(self, CameraHandler):
         while True:    
-            image = self.CameraHandler.image
+            image = CameraHandler.image
             target = self.target
 
             result = cv.matchTemplate(image, target, cv.TM_CCOEFF_NORMED)
@@ -34,14 +28,12 @@ class VisionHandler:
                 center = (top_left[0] + int(target.shape[1] / 2), top_left[1] + int(target.shape[1] / 2))
                 bottom_right = (top_left[0] + target.shape[1], top_left[1] + target.shape[1])
                 cv.rectangle(image, top_left, bottom_right, color=(0, 255, 0), thickness=2, lineType=cv.LINE_4)
-                cv.circle(image, center, 4, (255, 0, 0), thickness=2)
-                self.StageHandler.route = False
                 self.target_captured = True
                 self.target_coords = (center[0] - 200, 200 - center[1])
                 self.target_yaw_angle = round(math.atan2(self.target_coords[0], self.target_coords[1]) * 180 / math.pi, 2)
-                self.OffboardHandler.yaw_diff = self.target_yaw_angle
+                # self.OffboardHandler.yaw_diff = self.target_yaw_angle
 
-            cv.imshow('test', image)
+            cv.imshow('CV', image)
             if cv.waitKey(33) & 0xFF in (
                 ord('q'), 
                 27, 

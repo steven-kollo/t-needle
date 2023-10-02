@@ -1,4 +1,5 @@
 import math
+import helpers
 
 def plan_mission(start_pos, target_area):
     nearest_point_index = get_nearest_point(start_pos, target_area)
@@ -8,23 +9,11 @@ def plan_mission(start_pos, target_area):
     mission.append(start_pos)
     mission.insert(0, start_pos)
     return mission
-    
-
-def gps_to_meters(lat1, lon1, lat2, lon2): 
-    R = 6378.137
-    dLat = lat2 * math.pi / 180 - lat1 * math.pi / 180
-    dLon = lon2 * math.pi / 180 - lon1 * math.pi / 180
-    a = math.sin(dLat/2) * math.sin(dLat/2) + \
-    math.cos(lat1 * math.pi / 180) * math.cos(lat2 * math.pi / 180) * \
-    math.sin(dLon/2) * math.sin(dLon/2)
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
-    d = R * c
-    return d * 1000
 
 def get_nearest_point(start_pos, target_area):
     nearest_point_index = 0
     for i in range(len(target_area)):
-        target_area[i]["distance"] = gps_to_meters(start_pos["lat"], start_pos["lon"], target_area[i]["lat"], target_area[i]["lon"])
+        target_area[i]["distance"] = helpers.gps_to_meters(start_pos["lat"], start_pos["lon"], target_area[i]["lat"], target_area[i]["lon"])
         if (target_area[i]["distance"] < target_area[nearest_point_index]["distance"]):
             nearest_point_index = i
     return nearest_point_index
@@ -69,32 +58,10 @@ def combine_sides(side_a, side_b):
             mission.append(side_a[i])
             mission.append(side_a[i+1])
     mission.append(side_b[len(side_b) - 1])
+    mission = pop_distance_item(mission)
     return mission
 
-def test():
-    start_pos = {
-        "lat": 28.45260,
-        "lon": -13.86714
-    }
-    target_pos = [
-        {
-            "lat": 28.45247,
-            "lon": -13.86714
-        },
-        {
-            "lat": 28.45255,
-            "lon": -13.86714
-        },
-        {
-            "lat": 28.45247,
-            "lon": -13.86706
-        },
-        {
-            "lat": 28.45255,
-            "lon": -13.86706
-        },
-    ]
-
-    plan_mission(start_pos, target_pos)
-
-test()
+def pop_distance_item(mission):
+    for item in mission:
+        item.pop('distance', None)
+    return mission
