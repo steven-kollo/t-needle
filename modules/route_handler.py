@@ -28,9 +28,9 @@ class RouteHandler:
             # "ROUTE": 1
             if StageHandler.stage == 1:
                 distance = helpers.gps_to_meters(SensorsHandler.position["lat"], SensorsHandler.position["lon"], self.target_point["lat"], self.target_point["lon"])
-                print(distance)
+                print(f"ROUTE: {round(distance, 2)} to point")
                 if distance < 0.5:
-                    print("point reached!")
+                    print("ROUTE: point reached!")
                     self.next_point()
                     await Drone.action.goto_location(self.target_point["lat"], self.target_point["lon"], 500, 0)
             

@@ -18,7 +18,7 @@ class StageHandler:
             # Switch to capturing
             if (VisionHandler.target_captured and self.stage != 2):
                 self.switch_stage(stage="OFFBOARD")
-                print(self.stage)
+                print(f"STAGE: OFFBOARD")
             await asyncio.sleep(1)
     
     
