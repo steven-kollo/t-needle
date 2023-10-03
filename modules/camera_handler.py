@@ -2,7 +2,6 @@ import asyncio
 import numpy as np
 import mss
 from PIL import Image
-import json
 
 class CameraHandler:
     config = {}
@@ -10,8 +9,9 @@ class CameraHandler:
     sct = mss.mss()
     source = None
 
-    def __init__(self):
-        self.set_config()
+    # TODO make an option for physical camera
+    def __init__(self, Config):
+        self.set_config(Config=Config)
         self.source = self.sct.monitors[1]
         screenShot = self.sct.grab(self.source)
         img = Image.frombytes(
@@ -21,14 +21,11 @@ class CameraHandler:
         )
         self.image = np.array(img)[600:1000, 1500:1900]
 
-    def set_config(self):
-        config_file = open('config.json')
-        config = json.load(config_file)
-        if (config["sim_mode"]): 
-            self.config = config["sim_camera_config"]
+    def set_config(self, Config):
+        if (Config["sim_mode"]): 
+            self.config = Config["sim_camera_config"]
         else:
-            self.config = config["camera_config"]
-        config_file.close()
+            self.config = Config["camera_config"]
 
     async def read_sim_image(self):
         monitor = self.sct.monitors[1]

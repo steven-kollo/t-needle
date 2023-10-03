@@ -1,23 +1,24 @@
 import asyncio
-import modules.helpers as helpers
 
 class StageHandler:
-    route = True
+    stage = 1
 
-    async def update_target_point(self, MissionHandler, SensorsHandler, drone):
+    # Consts
+    STAGES = {
+        "ROUTE": 1,
+        "OFFBOARD": 2
+    }
+
+    def switch_stage(self, stage):
+        if stage in self.STAGES:
+            self.stage = self.STAGES[stage]
+               
+    async def handle_stages(self, VisionHandler):
         while True:
-            if self.route:
-                position = SensorsHandler.position
-                target = MissionHandler.target_point
-                distance = helpers.gps_to_meters(position["lat"], position["lon"], target["lat"], target["lon"])
-                print(distance)
-                if distance < 0.5:
-                    print("point reached!")
-                    MissionHandler.next_point()
-                    await drone.action.goto_location(MissionHandler.target_point["lat"], MissionHandler.target_point["lon"], 500, 0)
-            
+            # Switch to capturing
+            if (VisionHandler.target_captured and self.stage != 2):
+                self.switch_stage(stage="OFFBOARD")
+                print(f"STAGE: OFFBOARD")
             await asyncio.sleep(1)
-
-
     
     
