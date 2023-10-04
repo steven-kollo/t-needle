@@ -34,9 +34,12 @@ class CameraHandler:
             img = Image.frombytes(
                 'RGB', 
                 (screenShot.width, screenShot.height), 
-                screenShot.rgb, 
+                screenShot.bgra, 
+                'raw', 
+                'BGRX'
             )
             self.image = np.array(img)[600:1000, 1500:1900]
                 
             await asyncio.sleep(0.1)
 
+    

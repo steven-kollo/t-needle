@@ -32,6 +32,6 @@ class RouteHandler:
                 if distance < 0.5:
                     print("ROUTE: point reached!")
                     self.next_point()
-                    await Drone.action.goto_location(self.target_point["lat"], self.target_point["lon"], 500, 0)
+                    await Drone.action.goto_location(self.target_point["lat"], self.target_point["lon"], 492, 0)
             
             await asyncio.sleep(1)

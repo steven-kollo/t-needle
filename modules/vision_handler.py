@@ -18,7 +18,8 @@ class VisionHandler:
 
     async def process_image(self, CameraHandler):
         while True:    
-            image = CameraHandler.image
+            image = cv.cvtColor(CameraHandler.image, cv.COLOR_BGRA2RGB)
+            # cv.cvtColor(CameraHandler.image, cv.COLOR_BGRA2RGB)
             target = self.target
 
             result = cv.matchTemplate(image, target, cv.TM_CCOEFF_NORMED)
