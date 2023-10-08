@@ -1,5 +1,6 @@
 class SensorsHandler:
     position = {"lat": 0.0, "lon": 0.0}
+    heading = 0.0
 
     async def update_position(self, Drone):
         async for position in Drone.telemetry.position():
@@ -10,5 +11,8 @@ class SensorsHandler:
                 self.position["lat"] = lat
                 self.position["lon"] = lon
                 
+    async def update_heading(self, Drone):
+        async for heading in Drone.telemetry.heading():            
+            if round(heading.heading_deg, 1) != self.heading:
+                self.heading = round(heading.heading_deg, 1)
 
-    

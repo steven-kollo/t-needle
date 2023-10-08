@@ -9,14 +9,6 @@ import modules.offboard_handler as offboard_handler
 import modules.stage_handler as stage_handler
 
 class Pilot:
-    Drone = None
-    Config = None
-    RouteHandler = None
-    SensorsHandler = None
-    CameraHandler = None
-    VisionHandler = None
-    OffboardHandler = None
-    StageHandler = None
 
     def __init__(self, Drone):
         self.Drone = Drone
@@ -25,17 +17,20 @@ class Pilot:
         config_file.close()
         
         # Modules
-        self.RouteHandler = route_handler.RouteHandler(Config=self.Config)
+        self.RouteHandler = route_handler.RouteHandler()
         self.SensorsHandler = sensors_handler.SensorsHandler()
         self.CameraHandler = camera_handler.CameraHandler(Config=self.Config)
         self.VisionHandler = vision_handler.VisionHandler(Config=self.Config)
         self.OffboardHandler = offboard_handler.OffboardHandler()
-        self.StageHandler = stage_handler.StageHandler()
+        self.StageHandler = stage_handler.StageHandler(Config=self.Config, RouteHandler=self.RouteHandler)
         
         # Start parallel tasks
-        asyncio.ensure_future(self.StageHandler.handle_stages(VisionHandler=self.VisionHandler))
+        asyncio.ensure_future(self.StageHandler.handle_stages(RouteHandler=self.RouteHandler, OffboardHandler=self.OffboardHandler, VisionHandler=self.VisionHandler))
         asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
+        asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
         asyncio.ensure_future(self.CameraHandler.read_sim_image())
-        asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler))
-        asyncio.ensure_future(self.OffboardHandler.trigger_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, Drone=self.Drone))
-        asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler, StageHandler=self.StageHandler))
+        # asyncio.ensure_future(self.VisionHandler.track_target(CameraHandler=self.CameraHandler))
+        asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
+        asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
+        asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler))
+        

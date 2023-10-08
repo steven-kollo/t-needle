@@ -19,19 +19,19 @@ async def run():
             print("-- Global position state is good enough for flying.")
             break
         
-    Pilot = pilot.Pilot(
-        Drone=Drone
-    )
-    
     # Takeoff
     print("-- Arming")
     await Drone.action.arm()
 
     print("-- Taking off")
-    await Drone.action.set_takeoff_altitude(3.0)
+    await Drone.action.set_takeoff_altitude(7.0)
     await Drone.action.takeoff()    
     await asyncio.sleep(10)
-    
+
+    Pilot = pilot.Pilot(
+        Drone=Drone
+    )
+
     while True:
         await asyncio.sleep(1)
 
