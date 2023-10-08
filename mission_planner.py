@@ -1,6 +1,12 @@
 import math
 import helpers
 
+def build_area_points(start_pos, target_area):
+    nearest_point_index = get_nearest_point(start_pos, target_area)
+    get_nearest_point(target_area[nearest_point_index], target_area)
+    mission = reorder_target_area(target_area)
+    return mission
+
 def plan_mission(start_pos, target_area):
     nearest_point_index = get_nearest_point(start_pos, target_area)
     get_nearest_point(target_area[nearest_point_index], target_area)
