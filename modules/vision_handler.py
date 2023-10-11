@@ -1,10 +1,7 @@
 import asyncio
 import cv2 as cv
-import numpy as np
 import math
-from imutils.object_detection import non_max_suppression
-from scipy.spatial import distance as dist
-from collections import OrderedDict
+from ultralytics import YOLO
 
 class VisionHandler:
     target = None
@@ -14,9 +11,10 @@ class VisionHandler:
     target_yaw_angle = 0.0
     target_distance = 0.0
     tracker = None
-
+    detection_threshold = 0.4
 
     def __init__(self, Config):
+        self.model = YOLO("yolov8n.pt")
         if (Config["sim_mode"]): 
             self.target = cv.imread(Config["sim_camera_config"]["target_img_path"], cv.COLOR_BGRA2RGB)
         else:
@@ -25,40 +23,19 @@ class VisionHandler:
     async def process_image(self, CameraHandler, StageHandler):
         while True:    
             image = cv.cvtColor(CameraHandler.image, cv.COLOR_BGRA2RGB)
-            template = self.target
-            result = cv.matchTemplate(image, template, cv.TM_CCOEFF_NORMED)
-            
-            threshold = 0.70
-            (yCoords, xCoords) = np.where(result >= threshold)
-            if StageHandler.stage == 3 and len(xCoords) > 0 and len(yCoords) > 0 and self.target_captured == False:
-                if self.target_detected == False:
-                    print("VISION: target detected")
-                    print(f"x: {xCoords[0]} y: {yCoords[0]}")
-                    self.target_detected = True
-                elif self.validate_target(xCoords[0], yCoords[0]):
-                    print("VISION: target captured")
-                    print(f"x: {xCoords[0]} y: {yCoords[0]}")
-                    self.tracker = cv.legacy.TrackerMedianFlow_create()
-                    self.tracker.init(image, (xCoords[0], yCoords[0], 30, 30))
-                    self.target_captured = True
+            if StageHandler.stage == 3 and self.target_detected == False:
+                self.detect_target(image)
 
             if self.target_captured == True:
                 ok, bbox = self.tracker.update(image)
                 if ok == True:
                     (x, y, w, h) = [int(v) for v in bbox]
+                    self.target_coords = (int(x+w/2) - 200, 200 - int(y+h/2))
+                    self.calculate_distance_to_target()
                     cv.rectangle(image, (x, y), (x+w, y+h), (255, 255, 0), 1)
                     cv.putText(image, str('CAPTURE'), (10, 30), cv.QT_FONT_NORMAL, 1, (255, 255, 255))
 
-            template_h, template_w = template.shape[:2]
-            rects = []
-            for (x, y) in zip(xCoords, yCoords):
-                rects.append((x, y, x + template_w, y + template_h))
-            pick = non_max_suppression(np.array(rects))
-
-            for (startX, startY, endX, endY) in pick:
-                cv.rectangle(image, (startX, startY), (endX, endY),(0, 255, 0), 2)
-            cv.imshow('Results', image)
-        
+            cv.imshow('CV', image)
             if cv.waitKey(33) & 0xFF in (
                 ord('q'), 
                 27, 
@@ -66,11 +43,23 @@ class VisionHandler:
                 break
             await asyncio.sleep(0.1)
 
-    def validate_target(self, xCoords, yCoords):
-        x = abs(int(xCoords) - 200)
-        y = abs(int(yCoords) - 200)
-        if x < 150 and y < 150 and not self.target_captured:
-            return True
-             
     def calculate_distance_to_target(self):
         self.target_yaw_angle = round(math.atan2(self.target_coords[0], self.target_coords[1]) * 180 / math.pi, 2)
+
+    def detect_target(self, image):
+        results = self.model(image, verbose=False)
+        for result in results:
+            for r in result.boxes.data.tolist():
+                x1, y1, x2, y2, score, class_id = r
+                x1 = int(x1)
+                x2 = int(x2)
+                y1 = int(y1)
+                y2 = int(y2)
+                class_id = int(class_id)
+                if score > self.detection_threshold and class_id == 0.0:
+                    print("VISION: target detected")
+                    print(f"x: {x1}-{x2} y: {y1}-{y2} score: {round(score, 2)}")
+                    self.target_detected = True
+                    self.tracker = cv.legacy.TrackerMedianFlow_create()
+                    self.tracker.init(image, (x1, y1, 30, 30))
+                    self.target_captured = True

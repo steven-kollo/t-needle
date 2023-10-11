@@ -29,7 +29,6 @@ class Pilot:
         asyncio.ensure_future(self.SensorsHandler.update_position(Drone=self.Drone))
         asyncio.ensure_future(self.SensorsHandler.update_heading(Drone=self.Drone))
         asyncio.ensure_future(self.CameraHandler.read_sim_image())
-        # asyncio.ensure_future(self.VisionHandler.track_target(CameraHandler=self.CameraHandler))
         asyncio.ensure_future(self.VisionHandler.process_image(CameraHandler=self.CameraHandler, StageHandler=self.StageHandler))
         asyncio.ensure_future(self.OffboardHandler.handle_offboard(StageHandler=self.StageHandler, VisionHandler=self.VisionHandler, SensorsHandler=self.SensorsHandler, Drone=self.Drone))
         asyncio.ensure_future(self.RouteHandler.update_target_point(Drone=self.Drone, SensorsHandler=self.SensorsHandler))

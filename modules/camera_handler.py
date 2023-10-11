@@ -9,7 +9,6 @@ class CameraHandler:
     sct = mss.mss()
     source = None
 
-    # TODO make an option for physical camera
     def __init__(self, Config):
         self.set_config(Config=Config)
         self.source = self.sct.monitors[1]
