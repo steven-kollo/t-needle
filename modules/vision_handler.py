@@ -63,3 +63,13 @@ class VisionHandler:
                     self.tracker = cv.legacy.TrackerMedianFlow_create()
                     self.tracker.init(image, (x1, y1, 30, 30))
                     self.target_captured = True
+
+class Target:
+    def __init__(self, score, target_coords):
+        self.score = score
+        self.target_coords = target_coords
+        self.target_yaw_angle = self.calculate_target_yaw_angle()
+        # self.target_distance = 0.0
+
+    def calculate_target_yaw_angle(self):
+        self.target_yaw_angle = round(math.atan2(self.target_coords[0], self.target_coords[1]) * 180 / math.pi, 2)

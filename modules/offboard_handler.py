@@ -20,8 +20,7 @@ class OffboardHandler:
             # "CAPTURE": 4
             elif StageHandler.stage == 4:
                 print(f'yaw: {VisionHandler.target_yaw_angle}')
-                await self.yaw_capture(Drone, VisionHandler)
-                await self.goto_target(Drone=Drone, VisionHandler=VisionHandler)
+                await self.goto_target(Drone=Drone, VisionHandler=VisionHandler, SensorsHandler=SensorsHandler)
                 pass
             await asyncio.sleep(1)
     
@@ -53,19 +52,6 @@ class OffboardHandler:
             VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
         await asyncio.sleep(2)
 
-    async def yaw_capture(self, Drone, VisionHandler):
-        print("OFFBOARD: turn in yaw angle direction")
-        while (VisionHandler.target_yaw_angle > 2 or VisionHandler.target_yaw_angle < -2):
-            print(VisionHandler.target_yaw_angle)
-            print(VisionHandler.target_coords)
-            await Drone.offboard.set_velocity_body(
-                VelocityBodyYawspeed(0.0, 0.0, 0.0, VisionHandler.target_yaw_angle))
-            await asyncio.sleep(1)
-        print("OFFBOARD: yaw diff less 2 deg")
-        await Drone.offboard.set_velocity_body(
-            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
-        await asyncio.sleep(2)
-
     async def change_velocity(self, Drone, curr_v, new_v, sec):
         step = (new_v - curr_v) / 4
         for n in range(4):
@@ -74,21 +60,19 @@ class OffboardHandler:
                 VelocityBodyYawspeed(curr_v + step * n, 0.0, 0.0, 0.0))
             await asyncio.sleep(sec / 4)
         
-    async def goto_target(self, Drone, VisionHandler):
-        while (VisionHandler.target_coords[1] > 10 or VisionHandler.target_coords[1] < -10):
+    async def goto_target(self, Drone, VisionHandler, SensorsHandler):
+        while (VisionHandler.target_coords[1] > 10 or VisionHandler.target_coords[1] < -10) or (VisionHandler.target_yaw_angle > 2 or VisionHandler.target_yaw_angle < -2):
+            print(SensorsHandler.rel_alt)
+            if SensorsHandler.rel_alt < 8.0:
+                break
             await Drone.offboard.set_velocity_body(
-                VelocityBodyYawspeed(0.5, 0.0, 0.0, 0.0))
+                VelocityBodyYawspeed(0.8, 0.0, 1.0, VisionHandler.target_yaw_angle))
             await asyncio.sleep(1)
         
         print("OFFBOARD: target reached")
         await Drone.offboard.set_velocity_body(
             VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
-        await self.land_at_target(Drone=Drone)
+        
         await asyncio.sleep(2)
 
-    async def land_at_target(self, Drone):
-        print("OFFBOARD: landing")
-        while True:
-            await Drone.offboard.set_velocity_body(
-                VelocityBodyYawspeed(0.0, 0.0, 2.0, 0.0))
-            await asyncio.sleep(1)
+    
