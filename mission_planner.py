@@ -12,9 +12,18 @@ def plan_mission(start_pos, target_area):
     get_nearest_point(target_area[nearest_point_index], target_area)
     target_area = reorder_target_area(target_area)
     mission = add_subpoints(target_area)
-    mission.append(start_pos)
-    mission.insert(0, start_pos)
     return mission
+
+def gps_to_meters(lat1, lon1, lat2, lon2): 
+    R = 6378.137
+    dLat = lat2 * math.pi / 180 - lat1 * math.pi / 180
+    dLon = lon2 * math.pi / 180 - lon1 * math.pi / 180
+    a = math.sin(dLat/2) * math.sin(dLat/2) + \
+    math.cos(lat1 * math.pi / 180) * math.cos(lat2 * math.pi / 180) * \
+    math.sin(dLon/2) * math.sin(dLon/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    d = R * c
+    return d * 1000
 
 def get_nearest_point(start_pos, target_area):
     nearest_point_index = 0

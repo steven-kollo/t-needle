@@ -1,5 +1,6 @@
 import asyncio
 import mission_planner
+import mission_plannerV2
 class StageHandler:
     stage = None
     stages = {
@@ -18,8 +19,14 @@ class StageHandler:
         self.grid_step = config["grid_step"]
         self.min_relative_altitude = config["min_relative_altitude"]
         self.home = config["home"]
-        self.target_area = mission_planner.build_area_points(start_pos=self.home, target_area=config["target_area"])
-        RouteHandler.target_point = self.target_area[0]
+
+        # self.target_area = mission_planner.build_area_points(start_pos=self.home, target_area=config["target_area"])
+        self.route_points = mission_plannerV2.build_mission(self.home, config["target_area"], 0.00008)
+        # self.route_points = mission_planner.plan_mission(start_pos=self.home, target_area=config["target_area"])
+        RouteHandler.route = self.route_points
+        print(RouteHandler.route)
+        RouteHandler.target_point = self.route_points[0]
+        RouteHandler.home = self.home
 
 
     async def handle_stages(self, RouteHandler, OffboardHandler, VisionHandler):
