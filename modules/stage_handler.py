@@ -3,15 +3,12 @@ import mission_planner
 class StageHandler:
     target_detected = False
     target_captured = False
+    offboard_mode = False
     stage = None
     stages = {
         "ROUTE": 1,
-        "GRID_YAW": 2,
-        "GRID_ROUTE": 3,
-        "CAPTURE": 4,
-        "ACTION": 5,
-        "NEXT_LINE": 6,
-        "HOME": 7
+        "CAPTURE": 2,
+        "FAILSAFE": 3
     }
 
     def __init__(self, Config, RouteHandler):
@@ -28,12 +25,10 @@ class StageHandler:
 
     async def handle_stages(self):
         while True:
-            if not self.target_captured and self.stage != 1:
+            if not self.target_detected and self.stage != 1:
                 self.switch_stage(stage="ROUTE")
-            elif (self.target_captured and self.stage == 1):
+            elif (self.target_detected and self.stage == 1):
                 self.switch_stage(stage="CAPTURE")
-                self.target_captured = True
-            
             await asyncio.sleep(0.05)
     
     def switch_stage(self, stage):
