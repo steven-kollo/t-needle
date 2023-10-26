@@ -1,7 +1,8 @@
 import asyncio
 import mission_planner
-import mission_plannerV2
 class StageHandler:
+    target_detected = False
+    target_captured = False
     stage = None
     stages = {
         "ROUTE": 1,
@@ -19,27 +20,21 @@ class StageHandler:
         self.grid_step = config["grid_step"]
         self.min_relative_altitude = config["min_relative_altitude"]
         self.home = config["home"]
-
-        # self.target_area = mission_planner.build_area_points(start_pos=self.home, target_area=config["target_area"])
-        self.route_points = mission_plannerV2.build_mission(self.home, config["target_area"], 0.00008)
-        # self.route_points = mission_planner.plan_mission(start_pos=self.home, target_area=config["target_area"])
+        self.route_points = mission_planner.build_mission(self.home, config["target_area"], config["offset"])
         RouteHandler.route = self.route_points
-        print(RouteHandler.route)
         RouteHandler.target_point = self.route_points[0]
         RouteHandler.home = self.home
 
 
-    async def handle_stages(self, RouteHandler, OffboardHandler, VisionHandler):
+    async def handle_stages(self):
         while True:
-            if not RouteHandler.area_reached and self.stage != 1:
+            if not self.target_captured and self.stage != 1:
                 self.switch_stage(stage="ROUTE")
-            elif (RouteHandler.area_reached and self.stage == 1):
-                self.switch_stage(stage="GRID_YAW")
-            elif (OffboardHandler.grid_yaw and self.stage == 2):
-                self.switch_stage(stage="GRID_ROUTE")
-            elif (VisionHandler.target_captured and self.stage == 3):
+            elif (self.target_captured and self.stage == 1):
                 self.switch_stage(stage="CAPTURE")
-            await asyncio.sleep(1)
+                self.target_captured = True
+            
+            await asyncio.sleep(0.05)
     
     def switch_stage(self, stage):
         if stage in self.stages:

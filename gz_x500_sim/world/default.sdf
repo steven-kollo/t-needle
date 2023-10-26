@@ -146,7 +146,7 @@
       </link>
     </model>
     <include>
-      <pose>35 -40 0.8 0 0 0</pose>
+      <pose>15 -40 0.8 0 0 1.4</pose>
       <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Male visitor</uri>
     </include>
     <include>

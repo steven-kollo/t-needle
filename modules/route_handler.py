@@ -5,14 +5,13 @@ import math
 class RouteHandler:
     point_i = 0
     route = None
-    area_reached = False
     target_point = None
     checkpoint = None
     home = None
 
-    async def update_target_point(self, Drone, SensorsHandler):
+    async def update_target_point(self, Drone, SensorsHandler, StageHandler):
         while True:
-            if not self.area_reached:
+            if not StageHandler.target_detected:
                 await self.goto_target_point(Drone=Drone, SensorsHandler=SensorsHandler)
                 distance = helpers.gps_to_meters(SensorsHandler.position["lat"], SensorsHandler.position["lon"], self.target_point[0], self.target_point[1])
                 print(f"ROUTE: {round(distance, 2)} to point")
@@ -31,11 +30,7 @@ class RouteHandler:
             self.target_point = self.route[self.point_i]
         else:
             self.target_point = self.home
-    # async def go_to_area(self, Drone, SensorsHandler):
-    #     heading = await self.calculate_gps_heading(SensorsHandler)
-    #     print(heading)
-    #     await Drone.action.goto_location(self.target_point["lat"], self.target_point["lon"], self.target_point["alt"], heading)
-    
+   
     async def calculate_gps_heading(self, SensorsHandler):
         position = SensorsHandler.position
         lat1 = (round(position["lat"], 5) * math.pi) / 180.0

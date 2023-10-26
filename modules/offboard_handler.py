@@ -3,7 +3,6 @@ from mavsdk.offboard import (VelocityBodyYawspeed, VelocityNedYaw)
 
 class OffboardHandler:
     grid_yaw = False
-    target_captured = False
     target_coords = (0,0)
     yaw_diff = 0.0
     distance = 0.0
@@ -16,7 +15,7 @@ class OffboardHandler:
                 self.grid_yaw = True
             # "GRID_ROUTE": 3
             elif StageHandler.stage == 3:
-                await self.fly_grid_route(Drone=Drone, VisionHandler=VisionHandler)
+                await self.fly_grid_route(Drone=Drone, StageHandler=StageHandler)
             # "CAPTURE": 4
             elif StageHandler.stage == 4:
                 print(f'yaw: {VisionHandler.target_yaw_angle}')
@@ -24,6 +23,7 @@ class OffboardHandler:
                 pass
             await asyncio.sleep(1)
     
+
     async def turn_to_grid_yaw(self, Drone, SensorsHandler, yaw):
         await Drone.offboard.set_velocity_body(
             VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
@@ -34,15 +34,15 @@ class OffboardHandler:
             await Drone.offboard.set_velocity_ned(VelocityNedYaw(0.0, 0.0, 0.0, yaw))
             await asyncio.sleep(2)
 
-    async def fly_grid_route(self, Drone, VisionHandler):
-        while (VisionHandler.target_detected == False):
+    async def fly_grid_route(self, Drone, StageHandler):
+        while (StageHandler.target_detected == False):
             await Drone.offboard.set_velocity_body(
                 VelocityBodyYawspeed(2.0, 0.0, 0.0, 0.0))
             await asyncio.sleep(1)
 
         await self.change_velocity(Drone, 2.0, 0.5, 0.4)
 
-        while (VisionHandler.target_captured == False):
+        while (StageHandler.target_captured == False):
             await Drone.offboard.set_velocity_body(
                 VelocityBodyYawspeed(0.5, 0.0, 0.0, 0.0))
             await asyncio.sleep(1)
@@ -61,6 +61,12 @@ class OffboardHandler:
             await asyncio.sleep(sec / 4)
         
     async def goto_target(self, Drone, VisionHandler, SensorsHandler):
+        await Drone.offboard.set_velocity_body(
+            VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
+        await Drone.offboard.start()
+
+        print("OFFBOARD: observe target")
+
         while (VisionHandler.target_coords[1] > 10 or VisionHandler.target_coords[1] < -10) or (VisionHandler.target_yaw_angle > 2 or VisionHandler.target_yaw_angle < -2):
             print(SensorsHandler.rel_alt)
             if SensorsHandler.rel_alt < 8.0:
